@@ -30,6 +30,13 @@
   <main class="mdl-layout__content">
     <div class="page-content">
       <!-- Your content goes here -->
+
+      {% for message in messages %}
+      <div>
+        <span class="color-grey">[{{ message.created_at }}]:</span> <i>{{ message.text }}</i>
+      </div>
+      {% endfor %}
+
       <h1>Chatroom {{ request.user }}</h1>
       {% if request.user.is_authenticated %}
       <div>
@@ -53,5 +60,8 @@
 <<style>
   .page-content{
     padding: 100px;
+  }
+  .color-grey{
+    color: rgba(0,0,0,0.4);
   }
 </style>
