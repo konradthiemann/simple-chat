@@ -1,31 +1,140 @@
 {% extends "base.html" %}
-{% block content %}
+{% block content %} 
 {% if request.user.is_authenticated %}
-
-{% for message in messages %}
-<div>
-  <span class="color-grey">[{{ message.created_at }}]:</span> <i>{{ message.text }}</i>
-</div>
-{% endfor %}
-
 <h1>Chatroom {{ request.user }}</h1>
 {% if request.user.is_authenticated %}
-  <div>
-    Du bist eingeloggt! <br><br>
+<div>Du bist eingeloggt! <br /><br /></div>
+{% endif %}
+
+<div 
+  id="messageContainer" 
+  class="message-container"
+  >
+  {% for message in messages %}
+  <div
+    style="width: 100%; margin: 20px 0; display: flex; justify-content: center"
+  >
+    <div style="width: auto"></div>
+    <span>{{ message.created_at }}</span>
+    <div style="width: auto"></div>
   </div>
-{% endif %}
-  <form action="/chat/" method="post">
-    {% csrf_token %}
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-      <input class="mdl-textfield__input" type="text" name="textmessage" id="sample3">
-      <label class="mdl-textfield__label" for="sample3">Text...</label>
+  <div class="speech-bubble-container">
+    <div 
+      class="speech-bubble-time-slot 
+      {% if request.user == message.author %}right{% else %}left{% endif %}"
+    >
+      <span class="color-grey">{{ message.created_at }}</span>
     </div>
-    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-       Button
-    </button>
-  </form>
+    <div
+      class="speech-bubble
+      {% if request.user == message.author %}right{% else %}left{% endif %}"
+    >
+      <span>{{ message.text }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  function getCurrentFormattedDate() {
+    const today = new Date();
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const month = months[today.getMonth()];
+    const day = today.getDate();
+    const year = today.getFullYear();
+    const formattedDate = `[${month} ${day}, ${year}]`;
+    return formattedDate;
+  }
+
+  function getTime() {
+    // Aktuelles Datum und Uhrzeit abrufen
+    const now = new Date();
+
+    // Stunden und Minuten abrufen
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+
+    // Formatieren im gewünschten Format HH:MM
+    const formattedTime = `${hours}:${minutes}`;
+
+    return formattedTime;
+  }
+
+  async function sendMessage() {
+    let fd = new FormData();
+    let formattedDate = getCurrentFormattedDate();
+    let getTimeNow = getTime();
+    let token = "{{ csrf_token }}";
+    fd.append("textmessage", messageField.value);
+    fd.append("csrfmiddlewaretoken", token);
+    fd.append("time", getTimeNow);
+    try {
+      messageContainer.innerHTML += `
+      <div id="deleteMessage" class="speech-bubble-container">
+        <div class="speech-bubble-time-slot right">
+          <span class="color-grey">${getTimeNow}</span>
+        </div>
+        <div class="speech-bubble right">
+          <span class="color-grey"> ${messageField.value}</span>
+        </div>
+      </div>  
+      `;
+      let response = await fetch("/chat/", {
+        method: "POST",
+        body: fd,
+      });
+      let json = await response.json();
+      console.log("json:", json);
+      document.getElementById("deleteMessage").remove();
+      messageContainer.innerHTML += `
+      <div class="speech-bubble-container">
+        <div class="speech-bubble-time-slot right">
+          <span class="color-grey">${getTimeNow}</span>
+        </div>
+        <div class="speech-bubble right">
+          <span> ${messageField.value}</span>
+        </div>
+      </div>  
+      `;
+
+      console.log("Success!!");
+    } catch (e) {
+      console.error("An error occured!!", e);
+    }
+  }
+</script>
+
+<form onsubmit="sendMessage(); return false;" method="post">
+  {% csrf_token %}
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <input
+      class="mdl-textfield__input"
+      type="text"
+      name="textmessage"
+      id="messageField"
+    />
+    <label class="mdl-textfield__label" for="messageField">Text...</label>
+  </div>
+  <button
+    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+  >
+    Button
+  </button>
+</form>
 {% else %}
-  <h1>Not logged in</h1>
-  <p>please log in first.<br>click <a href="/login/">here</a></p>
-{% endif %}
-{% endblock %}
+<h1>Not logged in</h1>
+<p>please log in first.<br />click <a href="/login/">here</a></p>
+{% endif %} {% endblock %}

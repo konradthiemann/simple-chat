@@ -1,7 +1,87 @@
 
-      .page-content{
-        padding: 100px;
-      }
-      .color-grey{
-        color: rgba(0,0,0,0.4);
-      }
+.page-content{
+    padding: 100px;
+}
+.color-grey{
+    color: rgba(0,0,0,0.4);
+}
+.message-container{
+  display: flex;
+  flex-direction: column;
+}
+.speech-bubble-container{
+    display:flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.speech-bubble-time-slot{
+    margin: 0 10px;
+}
+
+.speech-bubble-time-slot.left{
+    align-self: flex-start;
+}
+
+.speech-bubble-time-slot.right{
+    align-self: flex-end;
+}
+
+/* Base styles for speech bubbles */
+.speech-bubble {
+    max-width: 60%;
+    padding: 10px;
+    margin: 3px 10px 10px 10px;
+    position: relative;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 10px;
+}
+
+/* Styles for speech bubbles on the left side */
+.speech-bubble.left {
+    background-color: #3498db; /* Blue color */
+    align-self: flex-start;
+}
+
+/* Arrow for left side speech bubbles */
+.speech-bubble.left::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -5px;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-right-color: #3498db; /* Same blue color */
+    border-left: 0;
+    margin-top: -10px;
+    transform: rotate(90deg);
+}
+
+/* Styles for speech bubbles on the right side */
+.speech-bubble.right {
+    background-color: #2ecc71; /* Green color */
+    align-self: flex-end;
+}
+
+/* Arrow for right side speech bubbles */
+.speech-bubble.right::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-left-color: #2ecc71; /* Same green color */
+    border-right: 0;
+    margin-right: -5px;
+    transform: rotate(135deg);
+}
+
+/* Container to manage flex layout */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+}
