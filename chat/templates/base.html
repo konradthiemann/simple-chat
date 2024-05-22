@@ -35,16 +35,23 @@
         </div>
       </header>
       <div class="mdl-layout__drawer">
-        <span class="mdl-layout-title">Title</span>
-        <nav class="mdl-navigation">
-          <a class="mdl-navigation__link" href="">Link</a>
-          <a class="mdl-navigation__link" href="">Link</a>
-          <a class="mdl-navigation__link" href="">Link</a>
-          <a class="mdl-navigation__link" href="">Link</a>
+        <span class="mdl-layout-title">Chats</span>
+        <nav class="mdl-navigation" style="align-items:center;">
+          <!-- TODO: for list of chats (only include chats where request.user is part of a chat) -->
+          <a  class="nav-link mdl-navigation__link  mdl-badge mdl-badge--overlap" data-badge="1" href="">
+           Name of chat here 
+          </a>
+          <!-- Colored FAB button -->
+          <button id="newChat" style="margin:20px;" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+            <i class="material-icons">add</i>
+          </button>
+          <div class="mdl-tooltip mdl-tooltip--large" for="newChat">
+            create new Chat
+          </div>
         </nav>
       </div>
-      <main class="mdl-layout__content">
-        <div class="page-content">
+      <main class="mdl-layout__content" style="background-color:rgba(160,160,250,0.2); display:flex; flex-direction:column; justify-content:center; width:100vw; align-items:center;">
+        <div class="page-content" style="display:flex; flex-direction:column; border:solid 2px blue; border-radius:10px; justify-content: center; width:80%; max-width:900px;">
           <!-- Your content goes here -->
           {% block content %}
           {% endblock %}

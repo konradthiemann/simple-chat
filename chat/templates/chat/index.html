@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %} 
 {% if request.user.is_authenticated %}
-<h1>Chatroom {{ request.user }}</h1>
+<h1 style="text-align:center;">Chatroom {{ request.user }}</h1>
 {% if request.user.is_authenticated %}
 <div>Du bist eingeloggt! <br /><br /></div>
 {% endif %}
@@ -116,24 +116,25 @@
     }
   }
 </script>
-
-<form onsubmit="sendMessage(); return false;" method="post">
-  {% csrf_token %}
-  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-    <input
-      class="mdl-textfield__input"
-      type="text"
-      name="textmessage"
-      id="messageField"
-    />
-    <label class="mdl-textfield__label" for="messageField">Text...</label>
-  </div>
-  <button
-    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-  >
-    Button
-  </button>
-</form>
+<div style="position:sticky; bottom:0; left:0; height: 70px; width:100%; display:flex; justify-content:center; align-items:center; background-color:rgba(160,160,160,0.2); border-top: solid 1px rgba(160,160,160,0.5)">
+  <form onsubmit="sendMessage(); return false;" method="post" style="align-items:center; justify-content:center; display:flex;">
+    {% csrf_token %}
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <input
+        class="mdl-textfield__input"
+        type="text"
+        name="textmessage"
+        id="messageField"
+      />
+      <label class="mdl-textfield__label" for="messageField">Text...</label>
+    </div>
+    <button
+      class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+    >
+      Button
+    </button>
+  </form>
+</div>
 {% else %}
 <h1>Not logged in</h1>
 <p>please log in first.<br />click <a href="/login/">here</a></p>
