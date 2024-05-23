@@ -6,33 +6,29 @@
 <div>Du bist eingeloggt! <br /><br /></div>
 {% endif %}
 
-<div 
-  id="messageContainer" 
-  class="message-container"
-  >
-  {% for message in messages %}
-  <div
-    style="width: 100%; margin: 20px 0; display: flex; justify-content: center"
-  >
-    <div style="width: auto"></div>
-    <span>{{ message.created_at }}</span>
-    <div style="width: auto"></div>
-  </div>
-  <div class="speech-bubble-container">
-    <div 
-      class="speech-bubble-time-slot 
-      {% if request.user == message.author %}right{% else %}left{% endif %}"
-    >
-      <span class="color-grey">{{ message.created_at }}</span>
-    </div>
-    <div
-      class="speech-bubble
-      {% if request.user == message.author %}right{% else %}left{% endif %}"
-    >
-      <span>{{ message.text }}</span>
-    </div>
-  </div>
-  {% endfor %}
+<div id="messageContainer" class="message-container">
+  {% with prev_date=None %}
+    {% for message in messages %}
+      {% if not prev_date or prev_date != message.created_at.date %}
+        <div style="width: 100%; margin: 20px 0; display: flex; justify-content: center">
+          <div style="width: auto"></div>
+          <span>{{ message.created_at.date }}</span>
+          <div style="width: auto"></div>
+        </div>
+        {% with prev_date=message.created_at.date %}
+        {% endwith %}
+      {% endif %}
+      
+      <div class="speech-bubble-container">
+        <div class="speech-bubble-time-slot {% if request.user == message.author %}right{% else %}left{% endif %}">
+          <span class="color-grey">{{ message.created_at.time }}</span>
+        </div>
+        <div class="speech-bubble {% if request.user == message.author %}right{% else %}left{% endif %}">
+          <p style="line-break:anywhere; margin:0;">{{ message.text }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  {% endwith %}
 </div>
 
 <script>
@@ -80,6 +76,7 @@
     let token = "{{ csrf_token }}";
     fd.append("textmessage", messageField.value);
     fd.append("csrfmiddlewaretoken", token);
+    fd.append("date", formattedDate);
     fd.append("time", getTimeNow);
     try {
       messageContainer.innerHTML += `
@@ -92,13 +89,18 @@
         </div>
       </div>  
       `;
+
       let response = await fetch("/chat/", {
         method: "POST",
         body: fd,
       });
-      let json = await response.json();
-      console.log("json:", json);
+
+      //let json = await response.json();
+
+      //console.log("json:", json);
+      
       document.getElementById("deleteMessage").remove();
+      
       messageContainer.innerHTML += `
       <div class="speech-bubble-container">
         <div class="speech-bubble-time-slot right">
@@ -109,13 +111,14 @@
         </div>
       </div>  
       `;
-
       console.log("Success!!");
+
     } catch (e) {
       console.error("An error occured!!", e);
     }
   }
 </script>
+
 <div style="position:sticky; bottom:0; left:0; height: 70px; width:100%; display:flex; justify-content:center; align-items:center; background-color:rgba(160,160,160,0.2); border-top: solid 1px rgba(160,160,160,0.5)">
   <form onsubmit="sendMessage(); return false;" method="post" style="align-items:center; justify-content:center; display:flex;">
     {% csrf_token %}

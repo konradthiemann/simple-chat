@@ -5,6 +5,7 @@ from django.core import serializers
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 
 from chat.models import Chat, Message
 
@@ -15,7 +16,13 @@ def index(request):
     """create a new message and renders the side"""
     if request.method == 'POST':
         my_chat = Chat.objects.get(id=1)
-        new_message = Message.objects.create(text=request.POST['textmessage'], chat=my_chat, author=request.user, receiver=request.user)
+        new_message = Message.objects.create(
+                text=request.POST['textmessage'],
+                chat=my_chat,
+                author=request.user,
+                receiver=request.user,
+                created_at=timezone.now()
+                )
         serialized_object = serializers.serialize('json', [ new_message, ])
         return JsonResponse(serialized_object[1:-1], safe=False)
     chat_messages = Message.objects.filter(chat__id=1)
