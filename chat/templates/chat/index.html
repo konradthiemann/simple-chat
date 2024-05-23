@@ -8,111 +8,117 @@
 
 <div id="messageContainer" class="message-container">
     {% for message in messages %}
-    {% if message %} <!-- INSERT LOGIC HERE -->
+      {% if message.show_date %} <!-- INSERT LOGIC HERE -->
         <div style="width: 100%; margin: 20px 0; display: flex; justify-content: center">
           <div style="width: auto"></div>
-          <span>{{ message.created_at|date:"d-m-Y" }}</span>
+          <span>{{ message.message.created_at|date:"d-m-Y" }}</span>
           <div style="width: auto"></div>
         </div>
       {% endif %}
       
       <div class="speech-bubble-container">
-        <div class="speech-bubble-time-slot {% if request.user == message.author %}right{% else %}left{% endif %}">
-          <span class="color-grey">{{ message.created_at|date:"H:i" }}</span>
+        <div class="speech-bubble-time-slot {% if request.user == message.message.author %}right{% else %}left{% endif %}">
+          <span class="color-grey">{{ message.message.created_at|date:"H:i" }}</span>
         </div>
-        <div class="speech-bubble {% if request.user == message.author %}right{% else %}left{% endif %}">
-          <p style="line-break:anywhere; margin:0;">{{ message.text }}</p>
+        <div class="speech-bubble {% if request.user == message.message.author %}right{% else %}left{% endif %}">
+          <p style="line-break:anywhere; margin:0;">{{ message.message.text }}</p>
         </div>
       </div>
     {% endfor %}
 </div>
 
 <script>
-  function getCurrentFormattedDate() {
-    const today = new Date();
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    const month = months[today.getMonth()];
-    const day = today.getDate();
-    const year = today.getFullYear();
-    const formattedDate = `[${month} ${day}, ${year}]`;
-    return formattedDate;
+window.onload = function() {
+    const messageContainer = document.getElementById("messageContainer");
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+        });
+    });
+
+    observer.observe(messageContainer, { childList: true });
+};
+
+function getCurrentFormattedDate() {
+  const today = new Date();
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const month = months[today.getMonth()];
+  const day = today.getDate();
+  const year = today.getFullYear();
+  const formattedDate = `[${month} ${day}, ${year}]`;
+  return formattedDate;
+}
+
+function getTime() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const formattedTime = `${hours}:${minutes}`;
+
+  return formattedTime;
+}
+
+async function sendMessage() {
+  let fd = new FormData();
+  let formattedDate = getCurrentFormattedDate();
+  let getTimeNow = getTime();
+  let token = "{{ csrf_token }}";
+  fd.append("textmessage", messageField.value);
+  fd.append("csrfmiddlewaretoken", token);
+  fd.append("date", formattedDate);
+  fd.append("time", getTimeNow);
+  try {
+    messageContainer.innerHTML += `
+    <div id="deleteMessage" class="speech-bubble-container">
+      <div class="speech-bubble-time-slot right">
+        <span class="color-grey">${getTimeNow}</span>
+      </div>
+      <div class="speech-bubble right">
+        <span class="color-grey"> ${messageField.value}</span>
+      </div>
+    </div>  
+    `;
+
+    let response = await fetch("/chat/", {
+      method: "POST",
+      body: fd,
+    });
+    
+    document.getElementById("deleteMessage").remove();
+    
+    messageContainer.innerHTML += `
+    <div class="speech-bubble-container">
+      <div class="speech-bubble-time-slot right">
+        <span class="color-grey">${getTimeNow}</span>
+      </div>
+      <div class="speech-bubble right">
+        <span> ${messageField.value}</span>
+      </div>
+    </div>  
+    `;
+    console.log("Success!!");
+
+  } catch (e) {
+    console.error("An error occured!!", e);
   }
-
-  function getTime() {
-    // Aktuelles Datum und Uhrzeit abrufen
-    const now = new Date();
-
-    // Stunden und Minuten abrufen
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-
-    // Formatieren im gewünschten Format HH:MM
-    const formattedTime = `${hours}:${minutes}`;
-
-    return formattedTime;
-  }
-
-  async function sendMessage() {
-    let fd = new FormData();
-    let formattedDate = getCurrentFormattedDate();
-    let getTimeNow = getTime();
-    let token = "{{ csrf_token }}";
-    fd.append("textmessage", messageField.value);
-    fd.append("csrfmiddlewaretoken", token);
-    fd.append("date", formattedDate);
-    fd.append("time", getTimeNow);
-    try {
-      messageContainer.innerHTML += `
-      <div id="deleteMessage" class="speech-bubble-container">
-        <div class="speech-bubble-time-slot right">
-          <span class="color-grey">${getTimeNow}</span>
-        </div>
-        <div class="speech-bubble right">
-          <span class="color-grey"> ${messageField.value}</span>
-        </div>
-      </div>  
-      `;
-
-      let response = await fetch("/chat/", {
-        method: "POST",
-        body: fd,
-      });
-
-      //let json = await response.json();
-
-      //console.log("json:", json);
-      
-      document.getElementById("deleteMessage").remove();
-      
-      messageContainer.innerHTML += `
-      <div class="speech-bubble-container">
-        <div class="speech-bubble-time-slot right">
-          <span class="color-grey">${getTimeNow}</span>
-        </div>
-        <div class="speech-bubble right">
-          <span> ${messageField.value}</span>
-        </div>
-      </div>  
-      `;
-      console.log("Success!!");
-
-    } catch (e) {
-      console.error("An error occured!!", e);
-    }
-  }
+}
 </script>
 
 <div style="position:sticky; bottom:0; left:0; height: 70px; width:100%; display:flex; justify-content:center; align-items:center; background-color:rgba(160,160,160,0.2); border-top: solid 1px rgba(160,160,160,0.5)">

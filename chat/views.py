@@ -25,8 +25,21 @@ def index(request):
                 )
         serialized_object = serializers.serialize('json', [ new_message, ])
         return JsonResponse(serialized_object[1:-1], safe=False)
+
     chat_messages = Message.objects.filter(chat__id=1)
-    return render(request, 'chat/index.html', {'messages':chat_messages})
+    messages_with_dates = []
+    previous_date = None
+
+    for message in chat_messages:
+        current_date = message.created_at.date()
+        show_date = current_date != previous_date
+        messages_with_dates.append({
+            'message': message,
+            'show_date': show_date
+        })
+        previous_date = current_date
+
+    return render(request, 'chat/index.html', {'messages':messages_with_dates})
 
 def login_view(request):
     """handle login"""
