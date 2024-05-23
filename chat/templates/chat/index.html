@@ -7,28 +7,24 @@
 {% endif %}
 
 <div id="messageContainer" class="message-container">
-  {% with prev_date=None %}
     {% for message in messages %}
-      {% if not prev_date or prev_date != message.created_at.date %}
+    {% if message %} <!-- INSERT LOGIC HERE -->
         <div style="width: 100%; margin: 20px 0; display: flex; justify-content: center">
           <div style="width: auto"></div>
-          <span>{{ message.created_at.date }}</span>
+          <span>{{ message.created_at|date:"d-m-Y" }}</span>
           <div style="width: auto"></div>
         </div>
-        {% with prev_date=message.created_at.date %}
-        {% endwith %}
       {% endif %}
       
       <div class="speech-bubble-container">
         <div class="speech-bubble-time-slot {% if request.user == message.author %}right{% else %}left{% endif %}">
-          <span class="color-grey">{{ message.created_at.time }}</span>
+          <span class="color-grey">{{ message.created_at|date:"H:i" }}</span>
         </div>
         <div class="speech-bubble {% if request.user == message.author %}right{% else %}left{% endif %}">
           <p style="line-break:anywhere; margin:0;">{{ message.text }}</p>
         </div>
       </div>
     {% endfor %}
-  {% endwith %}
 </div>
 
 <script>
