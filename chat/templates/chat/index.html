@@ -17,10 +17,13 @@
       {% endif %}
       
       <div class="speech-bubble-container">
-        <div class="speech-bubble-time-slot {% if request.user == message.message.author %}right{% else %}left{% endif %}">
+        <div style="padding: 0 5px;" class="speech-bubble-time-slot {% if request.user == message.message.author %}right{% else %}left{% endif %}">
           <span class="color-grey">{{ message.message.created_at|date:"H:i" }}</span>
         </div>
         <div class="speech-bubble {% if request.user == message.message.author %}right{% else %}left{% endif %}">
+          {% if request.user != message.message.author %}
+          <b style="color: rgba(250, 250, 250, 0.6); font-size: 14px;">{{ message.message.author }}</b>
+          {% endif %}
           <p style="line-break:anywhere; margin:0;">{{ message.message.text }}</p>
         </div>
       </div>
@@ -29,18 +32,20 @@
 
 <script>
 window.onload = function() {
+  setTimeout(() => {
     const messageContainer = document.getElementById("messageContainer");
     messageContainer.scrollTop = messageContainer.scrollHeight;
+  }, 10);
 
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList') {
-                messageContainer.scrollTop = messageContainer.scrollHeight;
-            }
-        });
-    });
+  const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+          if (mutation.type === 'childList') {
+              messageContainer.scrollTop = messageContainer.scrollHeight;
+          }
+      });
+  });
 
-    observer.observe(messageContainer, { childList: true });
+  observer.observe(messageContainer, { childList: true });
 };
 
 function getCurrentFormattedDate() {
@@ -121,10 +126,10 @@ async function sendMessage() {
 }
 </script>
 
-<div style="position:sticky; bottom:0; left:0; height: 70px; width:100%; display:flex; justify-content:center; align-items:center; background-color:rgba(160,160,160,0.2); border-top: solid 1px rgba(160,160,160,0.5)">
-  <form onsubmit="sendMessage(); return false;" method="post" style="align-items:center; justify-content:center; display:flex;">
+<div style="position:sticky; bottom:0; left:0; height: 70px; width:100%; display:flex; justify-content:center; align-items:center; background-color:rgba(160,160,160,0.2); border-top: solid 1px rgba(160,160,160,0.5); border-radius: 0 0 10px 10px;">
+  <form onsubmit="sendMessage(); return false;" method="post" style="align-items:center; justify-content:center; display:flex; width:50%;">
     {% csrf_token %}
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:90%; min-width: 200px;">
       <input
         class="mdl-textfield__input"
         type="text"
@@ -133,10 +138,8 @@ async function sendMessage() {
       />
       <label class="mdl-textfield__label" for="messageField">Text...</label>
     </div>
-    <button
-      class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-    >
-      Button
+    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored" style="background:#2ecc71;">
+      <i class="material-icons">arrow_right</i>
     </button>
   </form>
 </div>
